@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Bizim Hikaye</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:black;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+}
+section{
+  display:none;
+  min-height:100vh;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  padding:20px;
+}
+.show{display:flex}
+
+/* FADE */
+.fade{opacity:0;transition:opacity 1.5s}
+.fade.showFade{opacity:1}
+
+/* INPUT & BUTTON */
+input{padding:10px;font-size:18px}
+button{padding:10px 25px;font-size:18px;margin-top:20px}
+
+/* SLAYT */
+#media img,#media video{
+  max-width:90%;
+  max-height:70vh;
+}
+
+/* TEST */
+.option{
+  border:1px solid white;
+  padding:12px;
+  margin:10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+.correct{background:#2ecc71;color:black}
+.wrong{background:#e74c3c}
+
+/* ÖDÜL */
+.rewardBox{
+  border:2px solid white;
+  padding:20px;
+  border-radius:15px;
+  margin-bottom:20px;
+}
+.rewardBig{font-size:70px}
+
+/* KALPLER */
+.heart{
+  font-size:80px;
+  cursor:pointer;
+  margin:20px;
+  transition:opacity .5s,transform .3s;
+}
+.heart:hover{transform:scale(1.2)}
+.hide{opacity:0;pointer-events:none}
+
+/* FINAL */
+.finalText{
+  font-size:40px;
+  opacity:0;
+  transition:opacity 2s;
+}
+</style>
+</head>
+
+<body>
+
+<audio id="music" loop>
+  <source src="muzik.mp3" type="audio/mpeg">
+</audio>
+
+<!-- ŞİFRE -->
+<section id="lock" class="show">
+  <h1>Giriş ❤️</h1>
+  <input id="pass" placeholder="Şifre">
+  <button onclick="enter()">Gir</button>
+</section>
+
+<!-- SLAYT -->
+<section id="slide">
+  <div id="media" class="fade"></div>
+</section>
+
+<!-- TEST -->
+<section id="quiz">
+  <h2 id="q"></h2>
+  <div id="opts"></div>
+  <p id="fb"></p>
+  <button id="nextBtn" onclick="nextQ()" style="display:none">Sonraki</button>
+</section>
+
+<!-- ÖDÜL -->
+<section id="reward"></section>
+
+<!-- KALPLER -->
+<section id="heart">
+  <h2>Kalbimi seç ❤️</h2>
+  <div>
+    <span class="heart" onclick="pick(this,'Maalesef bu değil')">🤍</span>
+    <span class="heart" onclick="pick(this,'Hayırr yine yanlış')">❤️</span>
+    <span class="heart" onclick="pick(this,'Bu da doğru değil')">💝</span>
+  </div>
+  <p id="heartMsg"></p>
+</section>
+
+<!-- FINAL -->
+<section id="final">
+  <div class="finalText" id="finalText">
+    ÇÜNKÜ KALBİM HEP SENİNLE 👉💖
+  </div>
+</section>
+
+<script>
+/* MÜZİK */
+const music=document.getElementById("music");
+
+/* ŞİFRE */
+function enter(){
+  if(pass.value==="060807"){
+    lock.classList.remove("show");
+    music.play(); // kullanıcı etkileşimiyle başlar
+    startSlide();
+  }
+}
+
+/* SLAYT LİSTESİ */
+const slides=[
+ {t:"img",s:"foto1.jpg"},
+ {t:"img",s:"foto2.jpg"},
+ {t:"img",s:"foto3.jpg"},
+ {t:"video",s:"video1.mp4"},
+ {t:"img",s:"foto4.jpg"},
+ {t:"video",s:"video2.mp4"},
+ {t:"img",s:"foto5.jpg"},
+ {t:"img",s:"foto6.jpg"},
+ {t:"video",s:"video3.mp4"},
+ {t:"img",s:"foto7.jpg"},
+ {t:"img",s:"foto8.jpg"},
+ {t:"video",s:"video4.mp4"},
+ {t:"img",s:"foto9.jpg"},
+ {t:"img",s:"foto10.jpg"},
+ {t:"video",s:"video5.mp4"},
+ {t:"img",s:"foto11.jpg"}
+];
+
+let si=0;
+
+function startSlide(){
+  slide.classList.add("show");
+  showSlide();
+}
+
+function showSlide(){
+  media.innerHTML="";
+  media.classList.remove("showFade");
+
+  let el;
+  if(slides[si].t==="img"){
+    el=document.createElement("img");
+    el.src=slides[si].s;
+    setTimeout(nextSlide,3000);
+  }else{
+    el=document.createElement("video");
+    el.src=slides[si].s;
+    el.autoplay=true;
+    el.onended=nextSlide;
+  }
+
+  media.appendChild(el);
+  setTimeout(()=>media.classList.add("showFade"),50);
+}
+
+function nextSlide(){
+  si++;
+  if(si<slides.length) showSlide();
+  else{
+    slide.classList.remove("show");
+    startQuiz();
+  }
+}
+
+/* TEST */
+const questions=[
+{q:"Benim söyleyemediğim kelime?",o:["Mutfak","Klavye","Hapörlör","Şarj"],c:2},
+{q:"Ben nerede doğdum?",o:["Gaziantep","Ünye"],c:1},
+{q:"Göbekli Tepe nerede?",o:["Sinop","Giresun","Şanlıurfa","Antep"],c:2},
+{q:"En sevdiğim hoca?",o:["Ahmet","Ferdi","Ayhan","Selim"],c:2},
+{q:"En sevdiğim koku?",o:["Boya","Gül","Lahmacun","Karımın kokusu"],c:3},
+{q:"Benim dinim?",o:["Hristiyan","Ebrarizm","Budizm","Yahudi"],c:1},
+{q:"Yürümeyi sevdiğim yol?",o:["Orman","Sahil","İstiklal","Kalbine giden"],c:3},
+{q:"Gitmek istemediğimiz yer?",o:["Sinop","Kapadokya","İçel","Adana"],c:3},
+{q:"Telefonumda kayıtlısın?",o:["Aşkım","Ebrarım","Ay Tenli Kadınım","Tantuni"],c:2},
+{q:"En sevdiğim hobi?",o:["Devre","Oyun","Okey","Bebeğimle vakit"],c:3}
+];
+
+let qi=0,score=0;
+
+function startQuiz(){
+  quiz.classList.add("show");
+  loadQ();
+}
+
+function loadQ(){
+  fb.innerText="";
+  nextBtn.style.display="none";
+  q.innerText=(qi+1)+". "+questions[qi].q;
+  opts.innerHTML="";
+  questions[qi].o.forEach((t,i)=>{
+    let d=document.createElement("div");
+    d.className="option";
+    d.innerText=t;
+    d.onclick=()=>checkQ(i,d);
+    opts.appendChild(d);
+  });
+}
+
+function checkQ(i,el){
+  document.querySelectorAll(".option").forEach(o=>o.onclick=null);
+  if(i===questions[qi].c){
+    score++;
+    el.classList.add("correct");
+    fb.innerText="✔ Doğru";
+  }else{
+    el.classList.add("wrong");
+    opts.children[questions[qi].c].classList.add("correct");
+    fb.innerText="✘ Yanlış";
+  }
+  nextBtn.style.display="block";
+}
+
+function nextQ(){
+  qi++;
+  if(qi<questions.length) loadQ();
+  else{
+    quiz.classList.remove("show");
+    showReward();
+  }
+}
+
+/* ÖDÜL */
+function showReward(){
+  reward.classList.add("show");
+  reward.innerHTML=`
+    <div class="rewardBox">
+      <h2>İşte ödülün</h2>
+      <div class="rewardBig">🤍😍</div>
+      <p>(6-10)</p>
+      <p>Ödül: Sarılmak + Öpücük + Aşk dolu bakışlar</p>
+    </div>
+    <div>🥲 (1-3) &nbsp;&nbsp; 😘 (3-6)</div>
+    <button onclick="goHeart()">Sonraki</button>
+  `;
+}
+
+function goHeart(){
+  reward.classList.remove("show");
+  heart.classList.add("show");
+}
+
+/* KALPLER */
+function pick(el,text){
+  heartMsg.style.opacity=0;
+  setTimeout(()=>{
+    heartMsg.innerText=text;
+    heartMsg.style.opacity=1;
+    el.classList.add("hide");
+  },400);
+
+  if(document.querySelectorAll(".heart:not(.hide)").length===1){
+    setTimeout(endFinal,1500);
+  }
+}
+
+/* FINAL */
+function endFinal(){
+  heart.classList.remove("show");
+  final.classList.add("show");
+  setTimeout(()=>finalText.style.opacity=1,300);
+}
+</script>
+
+</body>
+</html>
